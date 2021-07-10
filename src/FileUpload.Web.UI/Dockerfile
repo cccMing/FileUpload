@@ -1,17 +1,21 @@
-FROM microsoft/dotnet:2.2-sdk AS build
-WORKDIR /src
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# Copy csproj and do restore.
-COPY ./FileUpload.Web.UI.csproj ./
-RUN dotnet restore
-
-# Copy everything else and build.
-COPY . ./
-RUN dotnet publish -c Release -r linux-arm -o /app
-
-# Build final image.
-FROM microsoft/dotnet:2.2.1-aspnetcore-runtime-stretch-slim-arm32v7
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+ENV ASPNETCORE_ENVIRONMENT=Docker
 WORKDIR /app
-COPY --from=build /app .
-COPY ./appsettings.Docker.json appsettings.Production.json
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+WORKDIR /src
+COPY ["FileUpload.Web.UI.csproj", "src/"]
+RUN dotnet restore "FileUpload.Web.UI.csproj"
+COPY . .
+RUN dotnet build "FileUpload.Web.UI.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "FileUpload.Web.UI.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "FileUpload.Web.UI.dll"]

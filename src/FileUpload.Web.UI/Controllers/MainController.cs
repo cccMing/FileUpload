@@ -35,14 +35,15 @@ namespace FileUpload.Controllers
             this.factory = factory;
         }
 
-        private string GetAppVersion()
+        public string AppVersion 
             => "v" + typeof(UploadOptions).Assembly.GetName().Version.ToString(3);
 
         [Route("")]
-        public IActionResult Index() => View(new IndexViewModel(GetAppVersion(), factory.CreateUpload(), factory.CreateBrowser()));
+        public IActionResult Index() 
+            => View(new IndexViewModel(AppVersion, factory.CreateUpload(), factory.CreateBrowser()));
 
-        [Route("browse")]
         [HttpGet]
+        [Route("browse")]
         public IActionResult Browse(bool noLayout)
         {
             BrowseViewModel model = factory.CreateBrowser();
@@ -55,19 +56,19 @@ namespace FileUpload.Controllers
                 return View(model);
         }
 
-        [Route("upload")]
         [HttpGet]
+        [Route("upload")]
         public IActionResult Upload()
         {
             return View(factory.CreateUpload());
         }
 
-        [Route("upload")]
         [HttpPost]
+        [Route("upload")]
         public async Task<StatusCodeResult> Upload(IFormFile file)
         {
             Ensure.NotNull(file, "file");
-            bool isSuccess = await fileService.SaveAsync(configuration, file.FileName, file.Length, file.OpenReadStream());
+            bool isSuccess = await fileService.SaveAsync(configuration, file.FileName, file.Length, file.OpenReadStream()).ConfigureAwait(false);
             if (isSuccess)
                 return Ok();
 

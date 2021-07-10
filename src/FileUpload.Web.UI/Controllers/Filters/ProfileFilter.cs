@@ -21,7 +21,10 @@ namespace FileUpload.Controllers.Filters
         {
             UploadSettings configuration = context.HttpContext.RequestServices.GetService<UploadSettings>();
             if (configuration == null)
+            {
+                Console.WriteLine("uploadsettings not found");
                 context.Result = new NotFoundResult();
+            }
         }
     }
 }

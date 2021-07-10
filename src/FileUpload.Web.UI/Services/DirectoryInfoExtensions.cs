@@ -9,7 +9,7 @@ namespace FileUpload.Services
 {
     public static class DirectoryInfoExtensions
     {
-        public static long GetLength(this DirectoryInfo directoryInfo, bool recursive = true)
+        public static long GetDirectorySize(this DirectoryInfo directoryInfo, bool recursive = true)
         {
             long result = 0;
             if (directoryInfo == null || !directoryInfo.Exists)
@@ -21,7 +21,7 @@ namespace FileUpload.Services
             if (recursive)
             {
                 foreach (var subDirectory in directoryInfo.GetDirectories())
-                    result += GetLength(subDirectory, recursive);
+                    result += GetDirectorySize(subDirectory, recursive);
             }
 
             return result;

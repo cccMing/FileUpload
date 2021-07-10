@@ -84,7 +84,7 @@ namespace FileUpload.Services
                 return false;
 
             DirectoryInfo directory = new DirectoryInfo(configuration.StoragePath);
-            if (configuration.MaxStorageLength != null && directory.GetLength() + length > configuration.MaxStorageLength.Value)
+            if (configuration.MaxStorageLength != null && directory.GetDirectorySize() + length > configuration.MaxStorageLength.Value)
                 return false;
 
             if (!directory.Exists)
@@ -105,7 +105,7 @@ namespace FileUpload.Services
             }
 
             using (Stream fileContent = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write))
-                await content.CopyToAsync(fileContent);
+                await content.CopyToAsync(fileContent).ConfigureAwait(false);
 
             return true;
         }

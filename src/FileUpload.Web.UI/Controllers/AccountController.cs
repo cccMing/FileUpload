@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FileUpload.Controllers
@@ -49,12 +48,20 @@ namespace FileUpload.Controllers
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     principal,
                     authProperties
-                );
+                ).ConfigureAwait(false);
 
                 return RedirectTo();
             }
 
             return View();
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectTo();
         }
 
         private static AuthenticationProperties CreateAuthenticationProperties()
@@ -83,14 +90,6 @@ namespace FileUpload.Controllers
             );
 
             return new ClaimsPrincipal(claimsIdentity);
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectTo();
         }
 
         private IActionResult RedirectTo()

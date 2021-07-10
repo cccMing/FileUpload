@@ -1,5 +1,4 @@
-﻿using FileUpload.Controllers.Filters;
-using FileUpload.Models;
+﻿using FileUpload.Models;
 using FileUpload.Services;
 using FileUpload.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,9 +10,6 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FileUpload
 {
@@ -30,7 +26,7 @@ namespace FileUpload
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddMvc();
+                .AddMvc(option => option.EnableEndpointRouting = false);
 
             services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -39,7 +35,7 @@ namespace FileUpload
             services.AddTransient<UploadSettingsService>();
             services.AddTransient<FileService>();
             services.AddTransient<UrlBuilder>();
-            services.AddTransient<ViewModels.Factory>();
+            services.AddTransient<Factory>();
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped(CreateUploadSettings);
             services.AddTransient(CreateUrlToken);
@@ -80,9 +76,9 @@ namespace FileUpload
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
                 app.UseDeveloperExceptionPage();
             else
                 app.UseExceptionHandler("/error");
