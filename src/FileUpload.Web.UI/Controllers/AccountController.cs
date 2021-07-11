@@ -74,15 +74,9 @@ namespace FileUpload.Controllers
 
         private static ClaimsPrincipal CreatePrincipal(AccountModel account)
         {
-            var claims = new List<Claim>(1 + account.Roles?.Count ?? 0);
+            var claims = new List<Claim>(1);
 
             claims.Add(new Claim(ClaimTypes.Name, account.Username));
-
-            if (account.Roles != null)
-            {
-                foreach (string role in account.Roles)
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-            }
 
             var claimsIdentity = new ClaimsIdentity(
                 claims,

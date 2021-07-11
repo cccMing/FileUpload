@@ -23,7 +23,7 @@ namespace FileUpload.Controllers.Filters
             if (configuration == null)
             {
                 Console.WriteLine("uploadsettings not found");
-                context.Result = new NotFoundResult();
+                context.Result = new BadRequestResult();
             }
         }
     }

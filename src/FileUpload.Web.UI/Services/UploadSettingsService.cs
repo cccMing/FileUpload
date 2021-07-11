@@ -34,6 +34,12 @@ namespace FileUpload.Services
         public UploadSettings Find(RouteData routeData, ClaimsPrincipal principal)
         {
             UploadSettings settings = FindSettings(routeData);
+
+            if (principal?.Identity?.IsAuthenticated == true)
+            {
+                settings.IsDeleteEnabled = true;
+            }
+
             if (ValidateUser(settings, principal))
                 return settings;
 

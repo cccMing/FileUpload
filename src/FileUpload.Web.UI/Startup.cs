@@ -36,43 +36,37 @@ namespace FileUpload
             services.AddTransient<FileService>();
             services.AddTransient<UrlBuilder>();
             services.AddTransient<Factory>();
+
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
-            services.AddScoped(CreateUploadSettings);
-            services.AddTransient(CreateUrlToken);
-            services.AddTransient(CreateUrlHelper);
-            services.AddTransient(CreateProfileList);
+
+            services.AddScoped<UploadSettings>(services =>
+            {
+                ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
+                UploadSettingsService configurationService = services.GetRequiredService<UploadSettingsService>();
+                UploadSettings configuration = configurationService.Find(actionContext.RouteData, actionContext.HttpContext.User);
+                return configuration;
+            });
+            services.AddTransient<UrlToken>(services =>
+            {
+                ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
+                UploadSettingsService configurationService = services.GetRequiredService<UploadSettingsService>();
+                return configurationService.FindUrlToken(actionContext.RouteData);
+            });
+            services.AddTransient<IUrlHelper>(services =>
+            {
+                ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
+                IUrlHelperFactory factory = services.GetRequiredService<IUrlHelperFactory>();
+                return factory.GetUrlHelper(actionContext);
+            });
+            services.AddTransient<ProfileListViewModel>(services =>
+            {
+                ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
+                return services.GetRequiredService<Factory>().CreateProfileList(actionContext.HttpContext.User);
+            });
             services.AddTransientProvider<UrlToken>();
 
             services.Configure<UploadOptions>(Configuration.GetSection("Upload"));
             services.Configure<AccountOptions>(Configuration.GetSection("Authentication"));
-        }
-
-        private ProfileListViewModel CreateProfileList(IServiceProvider services)
-        {
-            ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
-            return services.GetRequiredService<Factory>().CreateProfileList(actionContext.HttpContext.User);
-        }
-
-        private IUrlHelper CreateUrlHelper(IServiceProvider services)
-        {
-            ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
-            IUrlHelperFactory factory = services.GetRequiredService<IUrlHelperFactory>();
-            return factory.GetUrlHelper(actionContext);
-        }
-
-        private UploadSettings CreateUploadSettings(IServiceProvider services)
-        {
-            ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
-            UploadSettingsService configurationService = services.GetRequiredService<UploadSettingsService>();
-            UploadSettings configuration = configurationService.Find(actionContext.RouteData, actionContext.HttpContext.User);
-            return configuration;
-        }
-
-        private UrlToken CreateUrlToken(IServiceProvider services)
-        {
-            ActionContext actionContext = services.GetRequiredService<IActionContextAccessor>().ActionContext;
-            UploadSettingsService configurationService = services.GetRequiredService<UploadSettingsService>();
-            return configurationService.FindUrlToken(actionContext.RouteData);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

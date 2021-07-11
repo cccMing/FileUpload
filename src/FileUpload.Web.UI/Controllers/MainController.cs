@@ -91,8 +91,12 @@ namespace FileUpload.Controllers
         [Route("delete")]
         public IActionResult Delete([FromServices] UrlBuilder urlBuilder, string fileName)
         {
-            fileService.Delete(configuration, fileName);
-            return Redirect(urlBuilder.Index());
+            if (HttpContext.User?.Identity?.IsAuthenticated == true)
+            {
+                fileService.Delete(configuration, fileName);
+                return Redirect(urlBuilder.Index());
+            }
+            return View("error");
         }
 
         [HttpGet("/error")]
